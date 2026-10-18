@@ -2,16 +2,30 @@
    Never touches IndexedDB (private data stays in IDB, not here). */
 const VERSION = 'ff-v1';
 const ASSETS = [
-  './', './index.html', './manifest.json', './css/styles.css',
-  './icons/icon.svg', './icons/icon-maskable.svg',
-  './js/main.js', './js/app.js', './js/timer.js', './js/store.js',
-  './js/db.js', './js/utils.js', './js/notify.js', './js/charts.js',
-  './js/components.js',
-  './js/views/dashboard.js', './js/views/timer.js', './js/views/tasks.js',
-  './js/views/subjects.js', './js/views/planner.js', './js/views/history.js',
-  './js/views/analytics.js', './js/views/settings.js'
+  '/POMODERO/',
+  '/POMODERO/index.html',
+  '/POMODERO/manifest.json',
+  '/POMODERO/css/styles.css',
+  '/POMODERO/icons/icon.svg',
+  '/POMODERO/icons/icon-maskable.svg',
+  '/POMODERO/js/main.js',
+  '/POMODERO/js/app.js',
+  '/POMODERO/js/timer.js',
+  '/POMODERO/js/store.js',
+  '/POMODERO/js/db.js',
+  '/POMODERO/js/utils.js',
+  '/POMODERO/js/notify.js',
+  '/POMODERO/js/charts.js',
+  '/POMODERO/js/components.js',
+  '/POMODERO/js/views/dashboard.js',
+  '/POMODERO/js/views/timer.js',
+  '/POMODERO/js/views/tasks.js',
+  '/POMODERO/js/views/subjects.js',
+  '/POMODERO/js/views/planner.js',
+  '/POMODERO/js/views/history.js',
+  '/POMODERO/js/views/analytics.js',
+  '/POMODERO/js/views/settings.js'
 ];
-
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(ASSETS.map(a => c.add(a)))).then(() => self.skipWaiting()));
 });
