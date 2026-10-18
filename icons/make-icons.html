@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FocusFlow — Icon Generator</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;padding:32px;background:#0e1017;color:#e8eaf2;display:flex;flex-direction:column;align-items:center;gap:20px}
+  h1{font-size:18px;margin:0}
+  .row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .box{text-align:center;background:#151823;border:1px solid #262b3d;border-radius:14px;padding:16px}
+  canvas{border-radius:24px;display:block;margin:0 auto 10px}
+  button{background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;border:0;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer}
+  .all{background:#10b981}
+  .muted{color:#9096ad;font-size:13px;max-width:520px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+  <h1>FocusFlow Icon Generator</h1>
+  <p class="muted">Har button apni PNG download karta hai. Download ke baad files ko <b>icons/</b> folder mein same naam se rakho. <b>Maskable</b> wale Android ke circular mask ke liye hain (background full-bleed).</p>
+  <div class="row">
+    <div class="box"><canvas id="c1" width="192" height="192"></canvas><button data-s="192" data-m="0">icon-192.png</button></div>
+    <div class="box"><canvas id="c2" width="512" height="512"></canvas><button data-s="512" data-m="0">icon-512.png</button></div>
+    <div class="box"><canvas id="c3" width="192" height="192"></canvas><button data-s="192" data-m="1">icon-maskable-192.png</button></div>
+    <div class="box"><canvas id="c4" width="512" height="512"></canvas><button data-s="512" data-m="1">icon-maskable-512.png</button></div>
+  </div>
+  <button class="all" id="all">Download all 4 PNGs</button>
+
+<script>
+function roundRect(ctx,x,y,w,h,r){
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function paint(canvas, maskable){
+  const size = canvas.width;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,size,size);
+  const u = size/512;
+  const S = u * (maskable ? 0.82 : 1);      // maskable → inner design 80% safe-zone
+  const g = ctx.createLinearGradient(0,0,size,size);
+  g.addColorStop(0,'#6366f1'); g.addColorStop(1,'#a855f7');
+  ctx.fillStyle = g;
+  if (maskable) ctx.fillRect(0,0,size,size);   // full-bleed bg
+  else { ctx.beginPath(); roundRect(ctx,0,0,size,size,112*u); ctx.fill(); }
+  const cx=size/2, cy=size/2;
+  ctx.lineCap='round';
+  // track
+  ctx.lineWidth=36*S; ctx.strokeStyle='rgba(255,255,255,.28)';
+  ctx.beginPath(); ctx.arc(cx,cy,140*S,0,Math.PI*2); ctx.stroke();
+  // 270° progress arc (top → left, clockwise)
+  ctx.lineWidth=36*S; ctx.strokeStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(cx,cy,140*S,-Math.PI/2,Math.PI,false); ctx.stroke();
+  // center dot
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(cx,cy,56*S,0,Math.PI*2); ctx.fill();
+  // play triangle
+  ctx.fillStyle='#7c3aed'; ctx.beginPath();
+  ctx.moveTo(cx+(236-256)*S, cy+(230-256)*S);
+  ctx.lineTo(cx+(292-256)*S, cy+(256-256)*S);
+  ctx.lineTo(cx+(236-256)*S, cy+(282-256)*S);
+  ctx.closePath(); ctx.fill();
+}
+function save(canvas, name){
+  canvas.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download=name; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  },'image/png');
+}
+function target(btn){
+  const s=+btn.dataset.s, m=btn.dataset.m==='1';
+  const id='c'+btn.dataset.id;
+  const cv=document.getElementById(id);
+  paint(cv, m);
+  save(cv, (m?'icon-maskable-':'icon-')+s+'.png');
+}
+// tag each button with its canvas index
+document.querySelectorAll('.box button').forEach(b=>{
+  const idx = Array.from(b.parentNode.previousElementSibling||[]);
+});
+// simpler: map buttons to their canvas by position
+const pairs = [['c1','192','0'],['c2','512','0'],['c3','192','1'],['c4','512','1']];
+document.querySelectorAll('.box button').forEach((b,i)=>{
+  const [id,s,m] = pairs[i];
+  b.addEventListener('click', ()=>{ const cv=document.getElementById(id); paint(cv, m==='1'); save(cv,(m==='1'?'icon-maskable-':'icon-')+s+'.png'); });
+});
+// initial preview
+['c1','c2','c3','c4'].forEach((id,i)=> paint(document.getElementById(id), i>=2));
+document.getElementById('all').addEventListener('click', ()=>{
+  document.querySelectorAll('.box button').forEach(b=>b.click());
+});
+</script>
+</body>
+</html>
